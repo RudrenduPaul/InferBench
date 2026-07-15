@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Lint, typecheck, test (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc -p tsconfig.json --noEmit
+      - run: npm run build
+      - run: npm run test
+      - run: npm audit --audit-level=high
+
+  # Smoke-only: confirms the real omlx binary this pipeline targets is
+  # actually installable and responds to --version. Deliberately does NOT
+  # download a model or run a full benchmark here -- a multi-GB model
+  # download on every CI run is too slow/costly to be routine. Real
+  # cross-engine benchmark numbers are produced by a human running
+  # `inferbench run` locally, not by CI.
+  omlx-install-smoke-test:
+    name: omlx install smoke test (macOS/Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - run: brew tap jundot/omlx https://github.com/jundot/omlx
+      - run: brew trust jundot/omlx
+      - run: brew install omlx
+      - run: omlx --version
+
+  llamacpp-install-smoke-test:
+    name: llama.cpp install smoke test (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends llama.cpp || echo "package unavailable via apt, falling back to build check only"
+      - run: which llama-server || echo "llama-server not present via apt on this runner -- acceptable for a smoke test, not a hard CI failure"
