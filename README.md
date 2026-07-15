@@ -120,7 +120,7 @@ No. It's the fastest engine measured on this exact run. Re-run it -- your own ha
 
 ## Contributing
 
-Issues and PRs welcome. See `TODOS.md` for known deferred scope (additional engine adapters, a hosted fleet dashboard, richer recommendation scoring) and why each was deferred.
+Issues and PRs welcome. Known deferred scope includes additional engine adapters, a hosted fleet dashboard, and richer recommendation scoring -- open an issue if you'd like to pick one of these up.
 
 ## License
 
