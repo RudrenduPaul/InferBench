@@ -1,0 +1,2 @@
+# CI/CD workflows require review from the repo owner before merging.
+.github/workflows/** @RudrenduPaul
