@@ -29,10 +29,9 @@ jobs:
   # Smoke-only: confirms the real omlx binary this pipeline targets is
   # actually installable and responds to --version. Deliberately does NOT
   # download a model or run a full benchmark here -- a multi-GB model
-  # download on every CI run is too slow/costly to be routine (flagged
-  # during the [redacted] [redacted]). Real cross-engine
-  # benchmark numbers are produced by a human running `inferbench run`
-  # locally, not by CI.
+  # download on every CI run is too slow/costly to be routine. Real
+  # cross-engine benchmark numbers are produced by a human running
+  # `inferbench run` locally, not by CI.
   omlx-install-smoke-test:
     name: omlx install smoke test (macOS/Apple Silicon)
     runs-on: macos-14
