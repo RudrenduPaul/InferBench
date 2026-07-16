@@ -2,9 +2,9 @@ import type { EngineBenchmarkResult, Recommendation } from "../types.js";
 
 /**
  * v0.1 recommendation rule: highest measured average tok/s among engines
- * that were actually installed and tested. Deliberately simple (Approach A) --
- * richer multi-factor scoring (memory, cost) is deferred to TODOS.md until
- * real usage shows the simple rule picks wrong recommendations.
+ * that were actually installed and tested. Deliberately simple -- richer
+ * multi-factor scoring (memory, cost) is intentionally deferred until real
+ * usage shows this simple rule picks wrong recommendations.
  */
 export function recommend(results: EngineBenchmarkResult[]): Recommendation | null {
   const candidates = results.filter(
