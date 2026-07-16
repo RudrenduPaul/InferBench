@@ -157,10 +157,10 @@ describe("benchmarkEngine", () => {
   });
 
   it("never lets one adapter's failure affect a second adapter's own result object", async () => {
-    // Per [redacted] Finding 2A: per-engine isolation. Simulated here at the
-    // unit level -- the CLI loop (src/cli.ts) calls benchmarkEngine once per
-    // adapter and collects results independently, so a failing adapter
-    // simply produces its own failed result without throwing.
+    // Per-engine isolation, simulated here at the unit level -- the CLI
+    // loop (src/cli.ts) calls benchmarkEngine once per adapter and collects
+    // results independently, so a failing adapter simply produces its own
+    // failed result without throwing.
     const broken = makeFailingStartAdapter("broken", new Error("boom"));
     const missing = makeUninstalledAdapter("missing");
 
