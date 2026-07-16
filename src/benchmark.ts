@@ -27,8 +27,8 @@ function claimPort(): number {
 
 /**
  * Benchmarks a single engine. Never throws for an engine-level failure
- * (not installed, server start timeout, request failure) -- per the CEO
- * review's per-engine isolation decision, one bad engine never blocks
+ * (not installed, server start timeout, request failure) -- engines are
+ * isolated from each other by design, so one bad engine never blocks
  * results from the others. Callers get a result object with installed:false
  * or per-run errors instead.
  */
