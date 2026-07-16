@@ -24,9 +24,9 @@ export interface SpawnedServer {
 
 /**
  * Spawns a long-running server process (never through a shell -- argv array
- * only, per the [redacted] command-injection finding) and polls a URL
- * until it responds, so callers get a server that is actually ready to
- * accept requests rather than racing against startup.
+ * only, to avoid command-injection risk) and polls a URL until it responds,
+ * so callers get a server that is actually ready to accept requests rather
+ * than racing against startup.
  */
 export async function spawnServerAndWaitReady(
   opts: SpawnServerOptions,
