@@ -3,9 +3,9 @@ import { spawnServerAndWaitReady } from "./spawn-server.js";
 import { EngineStartTimeoutError } from "../errors.js";
 
 /**
- * Regression test for [redacted] Finding 6A: the timeout must be injectable
- * so tests can verify the kill-and-report path in milliseconds, not by
- * actually waiting out a real multi-minute production timeout.
+ * Regression test: the timeout must be injectable so tests can verify the
+ * kill-and-report path in milliseconds, not by actually waiting out a real
+ * multi-minute production timeout.
  */
 describe("spawnServerAndWaitReady", () => {
   it("throws EngineStartTimeoutError quickly when nothing answers the ready check", async () => {
