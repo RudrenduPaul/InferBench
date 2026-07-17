@@ -41,6 +41,19 @@ program
     }
   });
 
+function parseMaxTokens(value: string): number {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    throw new UsageError(
+      `Invalid --max-tokens value "${value}": must be a whole number, e.g. --max-tokens 200`,
+    );
+  }
+  if (parsed <= 0) {
+    throw new UsageError(`Invalid --max-tokens value "${value}": must be a positive number`);
+  }
+  return parsed;
+}
+
 async function runCommand(options: {
   model: string;
   engines?: string;
@@ -52,6 +65,7 @@ async function runCommand(options: {
   const adapters = options.engines
     ? resolveEngines(options.engines.split(","))
     : allEngines();
+  const maxTokens = parseMaxTokens(options.maxTokens);
 
   const hardware = detectHardware();
   if (!options.json) {
@@ -64,7 +78,7 @@ async function runCommand(options: {
   for (const adapter of adapters) {
     const result = await benchmarkEngine(adapter, {
       model: options.model,
-      maxTokens: Number(options.maxTokens),
+      maxTokens,
       verbose: options.verbose,
       onProgress: options.json ? undefined : (line) => console.log(line),
     });

@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import type { EngineAdapter, StartedServer } from "../types.js";
 import { spawnServerAndWaitReady } from "../harness/spawn-server.js";
-import { EngineNotFoundError } from "../errors.js";
+import { EngineNotFoundError, UsageError } from "../errors.js";
 
 const BINARY = "llama-server";
 
@@ -31,6 +31,11 @@ export class LlamaCppAdapter implements EngineAdapter {
   }): Promise<StartedServer> {
     if (!this.isInstalled()) {
       throw new EngineNotFoundError(this.name, BINARY);
+    }
+    if (opts.model.startsWith("-")) {
+      throw new UsageError(
+        `Invalid --model value "${opts.model}": cannot start with "-" (would be parsed as a flag by llama-server, not a model spec)`,
+      );
     }
     const spawned = await spawnServerAndWaitReady({
       engine: this.name,
