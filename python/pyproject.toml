@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inferbench-cli"
+version = "0.1.0"
+description = "Vendor-neutral local-LLM-inference benchmark and hardware-config advisor for omlx and llama.cpp -- measures real tokens/second on your own hardware, live."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [
+  { name = "Rudrendu Paul" },
+  { name = "Sourav Nandy" },
+]
+keywords = ["llm", "inference", "benchmark", "omlx", "llama.cpp", "mlx", "local-llm", "apple-silicon", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Benchmark",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0,<9",
+  "build>=1.0,<2",
+  "twine>=5.0,<7",
+]
+
+[project.urls]
+Homepage = "https://github.com/RudrenduPaul/InferBench"
+Repository = "https://github.com/RudrenduPaul/InferBench"
+"Bug Tracker" = "https://github.com/RudrenduPaul/InferBench/issues"
+Changelog = "https://github.com/RudrenduPaul/InferBench/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/RudrenduPaul/InferBench/blob/main/docs/getting-started.md"
+"Author - Rudrendu Paul" = "https://github.com/RudrenduPaul"
+"Author - Sourav Nandy" = "https://github.com/Sourav-nandy-ai"
+
+[project.scripts]
+inferbench = "inferbench.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inferbench"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/inferbench",
+  "tests",
+  "README.md",
+  "LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
