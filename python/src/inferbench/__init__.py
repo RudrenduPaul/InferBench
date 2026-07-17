@@ -8,9 +8,7 @@ Programmatic / agent-native entry point.
     results = [benchmark_engine(a, model="bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M") for a in adapters]
 
 Same core orchestration the CLI calls; inferbench.cli is a thin
-argument-parsing wrapper over these functions, matching the split between
-skillguard/cli.py and skillguard/scan/index.py in this account's sibling
-Python port.
+argument-parsing wrapper over these functions.
 
 This is the Python port of the inferbench-cli npm package
 (https://www.npmjs.com/package/inferbench-cli). Both distributions
