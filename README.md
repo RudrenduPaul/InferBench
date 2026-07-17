@@ -1,5 +1,8 @@
 # InferBench
 
+[![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+
 Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
 
 ```bash
@@ -38,13 +41,41 @@ The harder question this tool actually answers isn't "which engine is fastest in
 
 ## Install
 
+InferBench ships two independent, equally first-class packages -- pick
+whichever fits your toolchain, or install both. Neither is deprecated in
+favor of the other; both run the same measurement architecture against
+the same two supported engines.
+
 ```bash
+# npm -- JavaScript/TypeScript CLI
 npm install -g inferbench-cli
 # or, no install:
 npx inferbench-cli run --engines llama.cpp --model "<repo>:<quant>"
+
+# PyPI -- Python CLI + library (genuine port, not a wrapper around the Node binary)
+pip install inferbench-cli
 ```
 
-Requires Node.js >=18. At least one supported engine must already be installed (InferBench does not install engines for you):
+**Honest note on current status**: both packages are code-complete,
+tested, and built, but neither publish has cleared its registry yet, for
+two separate and unrelated registry-side reasons. The npm package's
+publish is blocked by a transient npm-registry rate limit (`E429`) --
+unrelated to code readiness; the npm code itself was already built and
+verified from a local tarball install. The PyPI package's first publish
+attempt hit PyPI's own new-project-creation abuse limit (`429 Too many new
+projects created`) on this account -- also a registry-side throttle, not a
+packaging problem; the wheel and sdist were built, `twine check`-verified,
+and installed + run end to end against real `omlx` and `llama.cpp`
+binaries on real hardware before that attempt. Both publishes will be
+retried once their respective registry-side limits clear -- see
+[`python/README.md`](./python/README.md) and
+[docs/getting-started.md](./docs/getting-started.md) for the Python-specific
+walkthrough, and [CHANGELOG.md](./CHANGELOG.md) for each distribution's
+version history.
+
+Requires Node.js >=18 for the npm package, Python >=3.9 for the PyPI
+package. At least one supported engine must already be installed either
+way (InferBench does not install engines for you):
 
 - **llama.cpp**: `brew install llama.cpp` (macOS) or build from [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
 - **omlx**: `brew tap jundot/omlx https://github.com/jundot/omlx && brew install omlx` (Apple Silicon only)
@@ -118,10 +149,20 @@ Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechan
 **Is the recommendation a guarantee this engine is fastest for me generally?**
 No. It's the fastest engine measured on this exact run. Re-run it -- your own hardware, your own model, your own moment -- rather than trusting a number from a different machine or a different day.
 
+## Documentation
+
+- [docs/getting-started.md](./docs/getting-started.md) -- install, first run, and using the library instead of the CLI, for both distributions.
+- [docs/concepts.md](./docs/concepts.md) -- the measurement architecture, the hardware detector, the recommendation rule, and the exit-code contract.
+- [docs/integrations/ci.md](./docs/integrations/ci.md) -- why InferBench is deliberately not a per-PR CI gate, and what patterns work instead.
+
 ## Contributing
 
-Issues and PRs welcome. Known deferred scope includes additional engine adapters, a hosted fleet dashboard, and richer recommendation scoring -- open an issue if you'd like to pick one of these up.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide, covering both the TypeScript and Python codebases. Issues and PRs welcome. Known deferred scope includes additional engine adapters, a hosted fleet dashboard, and richer recommendation scoring -- open an issue if you'd like to pick one of these up.
+
+## Security
+
+See [SECURITY.md](./SECURITY.md) for the vulnerability-reporting process.
 
 ## License
 
-Apache 2.0.
+Apache 2.0, see [LICENSE](./LICENSE).
