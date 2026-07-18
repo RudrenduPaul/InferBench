@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import subprocess
 
-from ..errors import EngineNotFoundError
+from ..errors import EngineNotFoundError, UsageError
 from ..harness.spawn_server import spawn_server_and_wait_ready
 from ..types import StartedServer
 
@@ -40,6 +40,11 @@ class LlamaCppAdapter:
     ) -> StartedServer:
         if not self.is_installed():
             raise EngineNotFoundError(self.name, _BINARY)
+        if model.startswith("-"):
+            raise UsageError(
+                f'Invalid --model value "{model}": cannot start with "-" '
+                "(would be parsed as a flag by llama-server, not a model spec)"
+            )
         spawned = spawn_server_and_wait_ready(
             engine=self.name,
             command=_BINARY,
