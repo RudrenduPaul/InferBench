@@ -60,6 +60,13 @@ for this repository. Include:
   inference engine binary to function -- InferBench does not download,
   vet, or sandbox engine binaries; it assumes you already trust whatever
   engine you installed and are choosing to benchmark.
+- `--out <path>` writing to any path you pass it, including outside the
+  current directory or via a relative `../` path -- this is the same
+  trust model as `curl -o`/`tar -xf`: you are supplying that path
+  yourself, to your own filesystem, with your own permissions. If you
+  wrap InferBench in a script that builds `--out` from an untrusted
+  source, that composition is your script's responsibility to validate,
+  not InferBench's.
 
 ## Response
 
