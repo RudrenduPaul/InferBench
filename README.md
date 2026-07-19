@@ -135,7 +135,32 @@ The recommendation in every report is scoped explicitly: it names the engine wit
 | Stays current as engines update | Yes | No -- frozen at publish date |
 | Vendor-neutral | Yes -- no engine of its own | Varies by author |
 
+## Documentation
+
+- [docs/getting-started.md](./docs/getting-started.md) -- install, first run, and using the library instead of the CLI, for both distributions.
+- [docs/concepts.md](./docs/concepts.md) -- the measurement architecture, the hardware detector, the recommendation rule, and the exit-code contract.
+- [docs/integrations/ci.md](./docs/integrations/ci.md) -- why InferBench is deliberately not a per-PR CI gate, and what patterns work instead.
+
+## Demo
+
+Install, first run, and a real omlx benchmark against a cached model:
+
+![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
+
+Machine-readable output written to a file with `--json --out`, useful for CI or for an agent parsing the result:
+
+![InferBench --json --out usage: a live omlx benchmark run whose full JSON report (per-prompt tokens/second, recommendation) is printed to stdout and also saved to report.json](./docs/usage.gif)
+
 ## FAQ
+
+**What is InferBench, exactly?**
+A benchmarking tool for local-LLM-inference engines already installed on your machine -- currently `omlx` and `llama.cpp`. It runs a fixed, varied prompt set against whichever of those are present, measures real tokens/second for each, and recommends whichever one was fastest on that specific run. It ships as two packages under the same name, `inferbench-cli`: one on npm (JavaScript/TypeScript) and one on PyPI (Python).
+
+**How is InferBench different from llama.cpp's own `llama-bench`?**
+`llama-bench` (bundled with llama.cpp) only benchmarks llama.cpp itself, with fine-grained tuning knobs (batch size, cache type, thread count, and more). InferBench benchmarks *across* engines -- currently `omlx` and `llama.cpp` -- using the same prompt set and the same measurement code for both, so the resulting tokens/second numbers are directly comparable to each other on your hardware, not just tunable in isolation for one engine.
+
+**Does InferBench work on Linux and Windows, or only macOS?**
+The `llama.cpp` engine works on any platform llama.cpp itself supports (Linux, macOS, Windows), since InferBench just starts `llama-server` and measures its OpenAI-compatible endpoint. The `omlx` engine is Apple Silicon-only, matching omlx's own scope -- on Linux or Windows, `--engines omlx` reports that engine as not installed and InferBench benchmarks whatever supported engine actually is present. Node.js >=18 is required for the npm package, Python >=3.9 for the PyPI package.
 
 **Does InferBench download models for me?**
 For llama.cpp, yes -- pass a Hugging Face repo spec and `llama-server`'s own `-hf` flag downloads and caches it. For omlx, no -- omlx's `serve` command only discovers models already present in a local directory, so you need to have the model downloaded there first.
@@ -149,11 +174,14 @@ Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechan
 **Is the recommendation a guarantee this engine is fastest for me generally?**
 No. It's the fastest engine measured on this exact run. Re-run it -- your own hardware, your own model, your own moment -- rather than trusting a number from a different machine or a different day.
 
-## Documentation
+**Is `--out` safe to point at a path that comes from an agent or other less-trusted input?**
+Yes, with one documented restriction: `--out` rejects a relative path that resolves outside the current working directory (for example `--out ../../etc/cron.d/x`), specifically so a benchmark invoked with an agent-supplied path can't be tricked into writing outside the intended directory. An absolute path is still accepted, since that's a value the caller passed directly rather than one that escaped via `..` traversal.
 
-- [docs/getting-started.md](./docs/getting-started.md) -- install, first run, and using the library instead of the CLI, for both distributions.
-- [docs/concepts.md](./docs/concepts.md) -- the measurement architecture, the hardware detector, the recommendation rule, and the exit-code contract.
-- [docs/integrations/ci.md](./docs/integrations/ci.md) -- why InferBench is deliberately not a per-PR CI gate, and what patterns work instead.
+**What happens if no supported engine is installed, or a run fails partway through?**
+If neither `omlx` nor `llama.cpp` is found, InferBench exits with code `1` and a message naming both install commands rather than returning a silent empty result. If an engine is installed but a specific run fails, that engine's line in the report reads `FAILED` with the underlying error instead of a number -- any other engine that did complete still gets a real result and remains eligible for the recommendation.
+
+**Can I use InferBench commercially, and is it free?**
+Yes. InferBench is Apache License 2.0, which permits commercial use, modification, and redistribution with no licensing fee. It has no paid API dependency -- every benchmark request goes to a server it starts locally on your own machine.
 
 ## Contributing
 
