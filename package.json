@@ -1,6 +1,6 @@
 {
   "name": "inferbench-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Benchmarks local-LLM-inference engines (omlx, llama.cpp) on your own hardware, live, and recommends the fastest engine/config combination for your model.",
   "keywords": [
     "llm",
@@ -39,6 +39,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "prepublishOnly": "npm run build",
     "lint": "eslint .",
     "test": "vitest run --coverage",
     "test:watch": "vitest"

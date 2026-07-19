@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
 import { Command } from "commander";
 import { detectHardware } from "./hardware/detect.js";
 import { resolveEngines, allEngines, SUPPORTED_ENGINES } from "./engines/registry.js";
@@ -8,6 +9,9 @@ import { writeJsonReport } from "./report/json.js";
 import { NoEnginesFoundError, UsageError } from "./errors.js";
 import type { BenchmarkReport } from "./types.js";
 
+const require = createRequire(import.meta.url);
+const { version: packageVersion } = require("../package.json") as { version: string };
+
 const program = new Command();
 
 program
@@ -15,7 +19,7 @@ program
   .description(
     "Benchmarks local-LLM-inference engines (omlx, llama.cpp) on your own hardware, live.",
   )
-  .version("0.1.0");
+  .version(packageVersion);
 
 program
   .command("run")
