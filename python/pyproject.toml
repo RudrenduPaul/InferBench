@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "inferbench-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "Vendor-neutral local-LLM-inference benchmark and hardware-config advisor for omlx and llama.cpp -- measures real tokens/second on your own hardware, live."
 readme = "README.md"
 requires-python = ">=3.9"

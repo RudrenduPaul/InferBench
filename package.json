@@ -1,6 +1,6 @@
 {
   "name": "inferbench-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Benchmarks local-LLM-inference engines (omlx, llama.cpp) on your own hardware, live, and recommends the fastest engine/config combination for your model.",
   "keywords": [
     "llm",
