@@ -22,7 +22,10 @@
     "url": "git+https://github.com/RudrenduPaul/InferBench.git"
   },
   "license": "Apache-2.0",
-  "author": "",
+  "author": "Rudrendu Paul",
+  "contributors": [
+    "Sourav Nandy"
+  ],
   "type": "module",
   "bin": {
     "inferbench": "dist/cli.js"
