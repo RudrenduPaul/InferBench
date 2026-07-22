@@ -60,13 +60,20 @@ for this repository. Include:
   inference engine binary to function -- InferBench does not download,
   vet, or sandbox engine binaries; it assumes you already trust whatever
   engine you installed and are choosing to benchmark.
-- `--out <path>` writing to any path you pass it, including outside the
-  current directory or via a relative `../` path -- this is the same
-  trust model as `curl -o`/`tar -xf`: you are supplying that path
-  yourself, to your own filesystem, with your own permissions. If you
-  wrap InferBench in a script that builds `--out` from an untrusted
-  source, that composition is your script's responsibility to validate,
-  not InferBench's.
+- `--out <path>` writing to any path you pass it within the current
+  working directory, or to any absolute path you supply directly -- this
+  is the same trust model as `curl -o`/`tar -xf`: you are supplying that
+  path yourself, to your own filesystem, with your own permissions. Note
+  this does **not** extend to a relative path that traverses outside the
+  current working directory (e.g. `--out ../../etc/cron.d/x`): that case
+  is rejected by `assertSafeOutputPath()` (`src/report/json.ts`), so it is
+  not part of the trust model described here and is not out of scope --
+  see the FAQ in the [project README](./README.md) for the exact
+  behavior. Only an explicit absolute path bypasses that check, since
+  that's a value the caller passed directly rather than one that escaped
+  via `..` traversal. If you wrap InferBench in a script that builds
+  `--out` from an untrusted source, validating any absolute path you
+  allow through remains your script's responsibility, not InferBench's.
 
 ## Response
 
