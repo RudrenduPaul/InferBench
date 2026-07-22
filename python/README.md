@@ -41,12 +41,8 @@ uv add inferbench-cli
 **Publish status, stated plainly**: this package is built, tested, and
 verified end to end (see "Verified" in
 [CHANGELOG.md](https://github.com/RudrenduPaul/InferBench/blob/main/CHANGELOG.md)),
-but the first publish attempt was rejected by PyPI with `429 Too many new
-projects created` -- a registry-side abuse throttle on this account, not a
-problem with the package. Publish will be retried once that limit clears;
-until then, `pip install inferbench-cli` will 404. Build it yourself from
-source in the meantime: `pip install
-git+https://github.com/RudrenduPaul/InferBench.git#subdirectory=python`.
+and is published to PyPI today. `pip install inferbench-cli` works -- see
+[pypi.org/project/inferbench-cli](https://pypi.org/project/inferbench-cli/).
 
 Zero third-party dependencies -- the CLI, the HTTP harness, and the
 hardware detector are all built on the Python standard library
@@ -55,13 +51,8 @@ JS/TS distribution installs the same way on the npm side:
 `npm install -g inferbench-cli` (or `npx inferbench-cli run ...` to run it
 once without installing) -- see the
 [project README](https://github.com/RudrenduPaul/InferBench#readme) for
-that package. Both are meant to be first-class, maintained together.
-**Honest note on the npm package's current status**: at the time of this
-Python release, the npm package's own publish was blocked by a transient
-npm-registry rate limit (`E429`), unrelated to code readiness -- the code
-itself was already built and verified from a local tarball install. That
-is a registry-side issue tracked separately from this PyPI release, which
-is unaffected by it.
+that package. Both are published and maintained together as first-class
+packages.
 
 Either package still requires at least one supported engine already
 installed on your machine -- neither package installs an inference engine

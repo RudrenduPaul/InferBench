@@ -20,12 +20,14 @@ this account, not a problem with the package itself. The wheel and sdist
 were built in an external venv, `twine check`-verified, installed into a
 completely fresh venv, and run end to end against real `omlx` and
 `llama.cpp` binaries on real hardware (see "Verified" below) before that
-attempt. Publish will be retried once the registry-side limit clears; this
-entry will be updated with the live PyPI URL at that point. Separately,
-and for an unrelated reason, the npm package's own publish is blocked by a
-transient npm-registry rate limit (`E429`) at the time this Python port
-was built -- also a registry-side issue, tracked independently of this
-PyPI release.
+attempt. Separately, and for an unrelated reason, the npm package's own
+publish was blocked by a transient npm-registry rate limit (`E429`) at
+the time this Python port was built -- also a registry-side issue,
+tracked independently of this PyPI release. **Update**: both registry-side
+limits have since cleared; `pip install inferbench-cli` and
+`npm install -g inferbench-cli` both work today -- see
+[pypi.org/project/inferbench-cli](https://pypi.org/project/inferbench-cli/)
+and [npmjs.com/package/inferbench-cli](https://www.npmjs.com/package/inferbench-cli).
 
 ### Added
 

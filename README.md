@@ -56,19 +56,12 @@ npx inferbench-cli run --engines llama.cpp --model "<repo>:<quant>"
 pip install inferbench-cli
 ```
 
-**Honest note on current status**: both packages are code-complete,
-tested, and built, but neither publish has cleared its registry yet, for
-two separate and unrelated registry-side reasons. The npm package's
-publish is blocked by a transient npm-registry rate limit (`E429`) --
-unrelated to code readiness; the npm code itself was already built and
-verified from a local tarball install. The PyPI package's first publish
-attempt hit PyPI's own new-project-creation abuse limit (`429 Too many new
-projects created`) on this account -- also a registry-side throttle, not a
-packaging problem; the wheel and sdist were built, `twine check`-verified,
-and installed + run end to end against real `omlx` and `llama.cpp`
-binaries on real hardware before that attempt. Both publishes will be
-retried once their respective registry-side limits clear -- see
-[`python/README.md`](./python/README.md) and
+**Current status**: both packages are published and installable today.
+`npm install -g inferbench-cli` and `pip install inferbench-cli` both
+work -- see
+[npmjs.com/package/inferbench-cli](https://www.npmjs.com/package/inferbench-cli)
+and [pypi.org/project/inferbench-cli](https://pypi.org/project/inferbench-cli/),
+or [`python/README.md`](./python/README.md) and
 [docs/getting-started.md](./docs/getting-started.md) for the Python-specific
 walkthrough, and [CHANGELOG.md](./CHANGELOG.md) for each distribution's
 version history.
