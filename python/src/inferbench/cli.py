@@ -21,6 +21,7 @@ import sys
 from datetime import datetime, timezone
 from typing import List
 
+from . import __version__ as _VERSION
 from .benchmark import benchmark_engine
 from .engines.registry import SUPPORTED_ENGINES, all_engines, resolve_engines
 from .errors import NoEnginesFoundError, UsageError
@@ -28,8 +29,6 @@ from .hardware.detect import detect_hardware
 from .recommend.config import recommend
 from .report.json_report import report_to_dict, write_json_report
 from .types import BenchmarkReport
-
-_VERSION = "0.1.0"
 
 
 def build_parser() -> argparse.ArgumentParser:

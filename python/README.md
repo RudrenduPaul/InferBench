@@ -7,6 +7,7 @@ package is the Python distribution -- a genuine, independent port of the
 npm package's TypeScript source, not a wrapper around the Node binary.
 
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
+[![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/RudrenduPaul/InferBench/blob/main/LICENSE)
 [![Python versions](https://img.shields.io/pypi/pyversions/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![CI](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml)
@@ -22,7 +23,7 @@ every engine, and reports the real, measured tokens/second -- not a number
 copied from a blog post.
 
 **Supported engines today: `omlx` and `llama.cpp`.** That is the complete
-list this v0.1 release supports -- see [docs/concepts.md](https://github.com/RudrenduPaul/InferBench/blob/main/docs/concepts.md)
+list this release supports -- see [docs/concepts.md](https://github.com/RudrenduPaul/InferBench/blob/main/docs/concepts.md)
 for why each engine needed its own adapter and what each one's real
 constraints are.
 
@@ -78,7 +79,7 @@ inferbench run --engines omlx --model "qwen2.5-1.5b-instruct-4bit"
 inferbench run --model "<spec>" --json --out report.json
 ```
 
-**Known v0.1 limitation, carried over from the npm package and equally
+**Known limitation, carried over from the npm package and equally
 true here:** `--model` means something different per engine (a
 downloadable Hugging Face spec for llama.cpp, a pre-downloaded local
 directory name for omlx), because the two engines have genuinely different
