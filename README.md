@@ -95,7 +95,8 @@ inferbench run --engines omlx --model "qwen2.5-1.5b-instruct-4bit"
 inferbench run --model "<spec>" --json --out report.json
 ```
 
-**Known limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
+> [!WARNING]
+> `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
 
 ## CLI command reference
 
