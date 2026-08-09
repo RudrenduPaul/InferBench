@@ -1,9 +1,14 @@
 # InferBench
 
+[![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 
 Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
+
+Install, first run, and a real omlx benchmark against a cached model:
+
+![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
 
 ```bash
 npx inferbench-cli run --engines llama.cpp --model "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"
@@ -90,7 +95,7 @@ inferbench run --engines omlx --model "qwen2.5-1.5b-instruct-4bit"
 inferbench run --model "<spec>" --json --out report.json
 ```
 
-**Known v0.1 limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
+**Known limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
 
 ## CLI command reference
 
@@ -136,13 +141,13 @@ The recommendation in every report is scoped explicitly: it names the engine wit
 
 ## Demo
 
-Install, first run, and a real omlx benchmark against a cached model:
-
-![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
-
 Machine-readable output written to a file with `--json --out`, useful for CI or for an agent parsing the result:
 
 ![InferBench --json --out usage: a live omlx benchmark run whose full JSON report (per-prompt tokens/second, recommendation) is printed to stdout and also saved to report.json](./docs/usage.gif)
+
+Benchmarking multiple engines side by side, with a real measured recommendation between them:
+
+![InferBench comparing engines: a live run against both omlx and llama.cpp reporting measured tokens/second for each and naming the faster one on this run](./docs/compare-engines.gif)
 
 ## FAQ
 
@@ -162,7 +167,7 @@ For llama.cpp, yes -- pass a Hugging Face repo spec and `llama-server`'s own `-h
 No. Every benchmark request goes to a server InferBench itself started on `127.0.0.1`. Nothing is uploaded anywhere.
 
 **Why does `--engines` sometimes need a different `--model` value per engine?**
-Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known v0.1 limitation note in Quickstart above.
+Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known limitation note in Quickstart above.
 
 **Is the recommendation a guarantee this engine is fastest for me generally?**
 No. It's the fastest engine measured on this exact run. Re-run it -- your own hardware, your own model, your own moment -- rather than trusting a number from a different machine or a different day.
