@@ -1,5 +1,6 @@
 # InferBench
 
+[![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 
@@ -90,7 +91,7 @@ inferbench run --engines omlx --model "qwen2.5-1.5b-instruct-4bit"
 inferbench run --model "<spec>" --json --out report.json
 ```
 
-**Known v0.1 limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
+**Known limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
 
 ## CLI command reference
 
@@ -162,7 +163,7 @@ For llama.cpp, yes -- pass a Hugging Face repo spec and `llama-server`'s own `-h
 No. Every benchmark request goes to a server InferBench itself started on `127.0.0.1`. Nothing is uploaded anywhere.
 
 **Why does `--engines` sometimes need a different `--model` value per engine?**
-Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known v0.1 limitation note in Quickstart above.
+Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known limitation note in Quickstart above.
 
 **Is the recommendation a guarantee this engine is fastest for me generally?**
 No. It's the fastest engine measured on this exact run. Re-run it -- your own hardware, your own model, your own moment -- rather than trusting a number from a different machine or a different day.
