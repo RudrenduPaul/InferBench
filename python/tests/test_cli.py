@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from inferbench import __version__
 from inferbench.cli import run_cli
 
 
@@ -36,8 +37,15 @@ def test_invalid_max_tokens_exits_1_with_a_usage_message(capsys):
 
 
 def test_version_flag_reports_the_package_version(capsys):
+    """Regression: __version__ (and cli.py's separate copy of it) was a
+    hardcoded string that drifted from the actual installed/published
+    version, so `inferbench --version` silently reported a stale number.
+    __version__ is now read live from package metadata, and this asserts
+    the CLI's --version output actually reflects it, not a second
+    hand-maintained constant that could drift independently again."""
     with pytest.raises(SystemExit) as exc_info:
         run_cli(["inferbench", "--version"])
     assert exc_info.value.code == 0
     captured = capsys.readouterr()
     assert "inferbench" in captured.out
+    assert __version__ in captured.out
