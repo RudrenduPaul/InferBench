@@ -6,6 +6,10 @@
 
 Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
 
+Install, first run, and a real omlx benchmark against a cached model:
+
+![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
+
 ```bash
 npx inferbench-cli run --engines llama.cpp --model "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"
 ```
@@ -136,10 +140,6 @@ The recommendation in every report is scoped explicitly: it names the engine wit
 - [docs/integrations/ci.md](./docs/integrations/ci.md) -- why InferBench is deliberately not a per-PR CI gate, and what patterns work instead.
 
 ## Demo
-
-Install, first run, and a real omlx benchmark against a cached model:
-
-![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
 
 Machine-readable output written to a file with `--json --out`, useful for CI or for an agent parsing the result:
 
