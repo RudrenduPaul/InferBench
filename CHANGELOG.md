@@ -6,6 +6,31 @@ JS/TS) and the PyPI package (`inferbench-cli`, Python) -- since they run
 the same measurement architecture against the same two supported engines;
 entries note which distribution they apply to.
 
+## [Python 0.1.5] - 2026-08-08
+
+Bug fix. Both `inferbench/__init__.py`'s `__version__` and
+`inferbench/cli.py`'s separate `_VERSION` constant were hardcoded to
+`"0.1.0"` and had drifted from the real published package -- PyPI already
+had `inferbench-cli` 0.1.4 live, but `inferbench --version` still printed
+0.1.0 to every user and agent that checked it. `__version__` is now read
+live from the installed package's own metadata via
+`importlib.metadata.version("inferbench-cli")`, with a `0.0.0-dev`
+fallback for an uninstalled source checkout, and `cli.py` imports that
+same value instead of keeping its own separate copy. This release also
+corrects a related drift: the local `python/pyproject.toml` `version`
+field still said `0.1.3`, one release behind the `0.1.4` already live on
+PyPI (the prior version bump was published without the corresponding
+`pyproject.toml` change being committed back to this checkout); this
+release bumps past the live version to `0.1.5` to resolve that gap.
+
+### Fixed
+
+- `inferbench --version` now reports the real installed/published
+  version instead of a stale hardcoded `0.1.0`.
+- `test_version_flag_reports_the_package_version` strengthened to assert
+  the actual installed `inferbench.__version__` value appears in
+  `--version` output, not just the substring `"inferbench"`.
+
 ## [Python 0.1.0] - 2026-07-17
 
 Python port completed, tested, and built (`inferbench-cli`, `pip install
