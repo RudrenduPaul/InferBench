@@ -145,6 +145,10 @@ Machine-readable output written to a file with `--json --out`, useful for CI or 
 
 ![InferBench --json --out usage: a live omlx benchmark run whose full JSON report (per-prompt tokens/second, recommendation) is printed to stdout and also saved to report.json](./docs/usage.gif)
 
+Benchmarking multiple engines side by side, with a real measured recommendation between them:
+
+![InferBench comparing engines: a live run against both omlx and llama.cpp reporting measured tokens/second for each and naming the faster one on this run](./docs/compare-engines.gif)
+
 ## FAQ
 
 **What is InferBench, exactly?**
