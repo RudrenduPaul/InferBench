@@ -1,5 +1,7 @@
 # InferBench
 
+<!-- mcp-name: io.github.RudrenduPaul/inferbench -->
+
 [![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
@@ -114,6 +116,41 @@ Options:
 ```
 
 Exit code `0` on a successful run with at least one engine tested; `1` on a usage error or when no supported engine is installed.
+
+## MCP Server
+
+InferBench ships a [Model Context Protocol](https://modelcontextprotocol.io) server so an AI agent
+(Claude, Cursor, or any MCP-compatible client) can run a hardware benchmark directly, without a
+human invoking the CLI by hand.
+
+Install the extra:
+
+```bash
+pip install "inferbench-cli[mcp]"
+```
+
+Add it to your MCP client's config (for Claude Desktop, `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "inferbench": {
+      "command": "uvx",
+      "args": ["--from", "inferbench-cli", "inferbench-mcp"]
+    }
+  }
+}
+```
+
+The server exposes one tool, `run`, that shells out to the published `inferbench` npm binary with
+the given subcommand and arguments plus `--json`, and returns the parsed result:
+
+```
+run(["run", "--engines", "llama.cpp", "--model", "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"])
+```
+
+Transport is stdio, so there is nothing to host: the MCP client spawns the server as a local
+subprocess. Source: [`python/src/inferbench/mcp_server.py`](python/src/inferbench/mcp_server.py).
 
 ## How the measurement works
 
