@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.RudrenduPaul/inferbench -->
+
 # inferbench-cli (Python)
 
 Vendor-neutral benchmark for local-LLM-inference engines -- measures real
