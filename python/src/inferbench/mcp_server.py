@@ -38,36 +38,29 @@ def _base_command() -> list[str]:
     return ["npx", "inferbench"]
 
 
-def _capture_help() -> str:
-    """Best-effort `--help` capture, used as the tool's dynamic description
-    instead of a hardcoded string."""
-    fallback = (
-        "Run the inferbench CLI (benchmarks local-LLM-inference engines "
-        "omlx and llama.cpp against a model on this machine's hardware)."
-    )
-    try:
-        proc = subprocess.run(
-            [*_base_command(), "--help"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        return proc.stdout.strip() or fallback
-    except Exception as exc:  # noqa: BLE001 - degrade to a generic description
-        print(f"inferbench-mcp: could not capture --help: {exc}", file=sys.stderr)
-        return fallback
+_RUN_DESCRIPTION = """Runs a live local-LLM-inference benchmark by shelling out to the `inferbench` CLI (the same binary published as `inferbench-cli` on npm) and returns its parsed JSON report. Call this when an agent needs real, measured tokens-per-second numbers for a locally installed inference engine (currently `omlx` and `llama.cpp`) on the machine this MCP server runs on -- for example, to decide which engine to recommend, to compare a model across engines, or to produce a fresh performance report. Do not call it to benchmark a remote machine, a model that has not been downloaded or cached locally for the chosen engine, or an engine other than omlx/llama.cpp (the CLI supports no others). At least one of the two engines must already be installed on the host (`omlx` via Homebrew, Apple Silicon only; `llama.cpp` via Homebrew or a source build, any platform) -- this tool does not install engines for you.
+
+Each call starts a real local inference server for every engine under test on 127.0.0.1, sends it live completion requests, and can take anywhere from tens of seconds to several minutes to return, capped at a 600-second internal timeout. It is read-only with respect to your project and writes no files, except when `args` explicitly includes `--out <path>`, in which case the CLI also saves the JSON report to that path. No data leaves the machine: every request goes to a server the CLI itself started locally. Calls are not idempotent in the sense of returning cached results -- rerunning the same args re-measures live and can produce different numbers run to run (thermal state, background load). On failure (bad args, no matching engine installed, a CLI crash, or a timeout) the tool does not raise; it returns a JSON object with an "error" key describing what went wrong plus the "command" that was actually run, so the caller can inspect and retry with corrected arguments.
+
+`args` is a `list[str]` of the exact CLI argv, mirroring `inferbench <args>` on the command line -- `--json` is appended automatically, so callers should not add it themselves. The CLI currently exposes one subcommand, `run`. Example argv lists, pulled from the real `inferbench run --help` output:
+- ["run", "--model", "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M", "--engines", "llama.cpp"] -- benchmark llama.cpp against a Hugging Face model spec (llama.cpp downloads and caches it automatically).
+- ["run", "--model", "qwen2.5-1.5b-instruct-4bit", "--engines", "omlx", "--max-tokens", "100"] -- benchmark omlx against a model already present under ~/.omlx/models/, with a shorter completion length.
+- ["run", "--model", "<spec>", "--out", "report.json", "--verbose"] -- benchmark every installed engine, save the full report to a file, and include raw engine server output for debugging.
+- ["--help"] or ["run", "--help"] -- print the CLI's own usage text to discover flags beyond this description; the auto-appended `--json` makes this particular output land in the returned object's "stdout" field rather than parse as JSON.
+
+On success the returned JSON has: `timestamp` (ISO string), `hardware` (`platform`, `arch`, `totalMemoryGb`, `cpuModel`, `isAppleSilicon`), `model` (the spec tested), `engines` (a list of per-engine results with `engine`, `installed`, an optional `error`, per-prompt `runs`, and `avgTokensPerSecond`/`minTokensPerSecond`/`maxTokensPerSecond`), and `recommendation` (`engine` and `reason`, or `null` if no engine could be benchmarked)."""
 
 
 mcp = MCPServer(name="inferbench")
 
 
-@mcp.tool(description=_capture_help())
+@mcp.tool(description=_RUN_DESCRIPTION)
 def run(args: list[str]) -> dict[str, Any]:
-    """Run the inferbench CLI with the given arguments and return parsed JSON.
+    """Run the inferbench CLI with the given argv and return its parsed JSON report.
 
-    `args` should be the subcommand and flags as separate list items, e.g.
-    ["run", "--model", "qwen2.5-1.5b-instruct-4bit", "--engines", "omlx"].
-    `--json` is appended automatically so output is always machine-readable.
+    See `_RUN_DESCRIPTION` (the tool's registered description) for the full
+    contract: parameter shape, example argv, side effects, and the returned
+    JSON's key structure.
     """
     command = [*_base_command(), *args, "--json"]
     print(f"inferbench-mcp: running {command!r}", file=sys.stderr)
