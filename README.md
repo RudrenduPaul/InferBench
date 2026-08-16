@@ -6,6 +6,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 
+<a href="https://www.producthunt.com/products/inferbench?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-inferbench" target="_blank" rel="noopener noreferrer"><img alt="Inferbench - Benchmarks local LLM engines on your hardware | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1222926&theme=light&t=1786882205502"></a>
+
 Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
 
 Install, first run, and a real omlx benchmark against a cached model:
