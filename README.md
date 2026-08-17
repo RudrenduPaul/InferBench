@@ -1,13 +1,19 @@
 # InferBench
 
-Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
+<!-- mcp-name: io.github.RudrenduPaul/inferbench -->
 
 [![CI](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 
+<a href="https://www.producthunt.com/products/inferbench?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-inferbench" target="_blank" rel="noopener noreferrer"><img alt="Inferbench - Benchmarks local LLM engines on your hardware | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1222926&theme=light&t=1786882205502"></a>
+
+Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
+
 Local-inference engines all publish their own benchmarks, on their own hardware, in their own README. None of them tell you which one is actually fastest on the machine sitting in front of you. InferBench runs a fixed, varied prompt set against whichever supported engines are installed on your own hardware and reports real, measured tokens/second -- not a number copied from someone else's blog post.
+
+Install, first run, and a real omlx benchmark against a cached model:
 
 ![InferBench install and first run: pip install inferbench-cli, then a live omlx benchmark reporting real tokens/second and a recommendation](./docs/demo.gif)
 
@@ -110,7 +116,8 @@ Results:
 Recommendation: llama.cpp -- highest measured throughput on this run (75.54 tok/s avg) -- specific to this hardware and model, not a universal ranking
 ```
 
-**Known v0.1 limitation, stated plainly:** `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
+> [!WARNING]
+> `--model` means something different per engine (a downloadable HF spec for llama.cpp, a pre-downloaded local directory name for omlx), because the two engines have genuinely different model-acquisition capabilities -- omlx's `serve` command has no flag to pull an arbitrary model from Hugging Face directly. Running both engines against the *same* model in one command therefore needs the model already available in both engines' own expected forms.
 
 ## CLI command reference
 
@@ -167,6 +174,41 @@ if cost:
     print(f"{cost.cloud_model}: ${cost.cloud_cost_per_1k_tokens_usd}/1K tokens (snapshot {cost.pricing_snapshot_date})")
 ```
 
+## MCP Server
+
+InferBench ships a [Model Context Protocol](https://modelcontextprotocol.io) server so an AI agent
+(Claude, Cursor, or any MCP-compatible client) can run a hardware benchmark directly, without a
+human invoking the CLI by hand.
+
+Install the extra:
+
+```bash
+pip install "inferbench-cli[mcp]"
+```
+
+Add it to your MCP client's config (for Claude Desktop, `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "inferbench": {
+      "command": "uvx",
+      "args": ["--from", "inferbench-cli", "inferbench-mcp"]
+    }
+  }
+}
+```
+
+The server exposes one tool, `run`, that shells out to the published `inferbench` npm binary with
+the given subcommand and arguments plus `--json`, and returns the parsed result:
+
+```
+run(["run", "--engines", "llama.cpp", "--model", "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"])
+```
+
+Transport is stdio, so there is nothing to host: the MCP client spawns the server as a local
+subprocess. Source: [`python/src/inferbench/mcp_server.py`](python/src/inferbench/mcp_server.py).
+
 ## How the measurement works
 
 InferBench does not shell out to each engine's own benchmark tool and parse its output. That approach was in the original plan and turned out not to work at all: `omlx` has no CLI benchmark command -- its "Performance Benchmark" feature is a GUI-only, one-click action in its admin dashboard, verified directly against its real README before writing a line of adapter code.
@@ -200,9 +242,15 @@ The harder question this tool actually answers isn't "which engine is fastest in
 - [docs/concepts.md](./docs/concepts.md) -- the measurement architecture, the hardware detector, the recommendation rule, and the exit-code contract.
 - [docs/integrations/ci.md](./docs/integrations/ci.md) -- why InferBench is deliberately not a per-PR CI gate, and what patterns work instead.
 
+## Demo
+
 Machine-readable output written to a file with `--json --out`, useful for CI or for an agent parsing the result:
 
 ![InferBench --json --out usage: a live omlx benchmark run whose full JSON report (per-prompt tokens/second, recommendation) is printed to stdout and also saved to report.json](./docs/usage.gif)
+
+Benchmarking multiple engines side by side, with a real measured recommendation between them:
+
+![InferBench comparing engines: a live run against both omlx and llama.cpp reporting measured tokens/second for each and naming the faster one on this run](./docs/compare-engines.gif)
 
 ## FAQ
 
@@ -222,7 +270,7 @@ For llama.cpp, yes -- pass a Hugging Face repo spec and `llama-server`'s own `-h
 No. Every benchmark request goes to a server InferBench itself started on `127.0.0.1`. Nothing is uploaded anywhere.
 
 **Why does `--engines` sometimes need a different `--model` value per engine?**
-Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known v0.1 limitation note in Quickstart above.
+Because `omlx` and `llama.cpp` have genuinely different model-acquisition mechanisms -- see the Known limitation note in Quickstart above.
 
 **Is the recommendation a guarantee this engine is fastest for me generally?**
 No. It's the fastest engine measured on this exact run. Re-run it -- your own hardware, your own model, your own moment -- rather than trusting a number from a different machine or a different day.

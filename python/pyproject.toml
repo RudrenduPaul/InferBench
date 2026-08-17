@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "inferbench-cli"
-version = "0.1.4"
-description = "Vendor-neutral local-LLM-inference benchmark for omlx and llama.cpp -- measures real tokens/second on your own hardware, live, with a Python library surface."
+version = "0.1.8"
+description = "Vendor-neutral local-LLM-inference benchmark and hardware-config advisor for omlx and llama.cpp -- measures real tokens/second on your own hardware, live."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "Apache-2.0"
@@ -33,9 +33,12 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=7.0,<10",
+  "pytest>=9.1.1,<10",
   "build>=1.0,<2",
-  "twine>=5.0,<7",
+  "twine>=5.0,<8",
+]
+mcp = [
+  "mcp[cli]>=2.0.0",
 ]
 
 [project.urls]
@@ -49,6 +52,7 @@ Documentation = "https://github.com/RudrenduPaul/InferBench/blob/main/docs/getti
 
 [project.scripts]
 inferbench = "inferbench.cli:main"
+inferbench-mcp = "inferbench.mcp_server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/inferbench"]
