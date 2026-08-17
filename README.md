@@ -2,6 +2,7 @@
 
 <!-- mcp-name: io.github.RudrenduPaul/inferbench -->
 
+[![CI](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/InferBench/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/inferbench-cli.svg)](https://www.npmjs.com/package/inferbench-cli)
 [![PyPI version](https://img.shields.io/pypi/v/inferbench-cli.svg)](https://pypi.org/project/inferbench-cli/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
@@ -9,6 +10,8 @@
 <a href="https://www.producthunt.com/products/inferbench?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-inferbench" target="_blank" rel="noopener noreferrer"><img alt="Inferbench - Benchmarks local LLM engines on your hardware | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1222926&theme=light&t=1786882205502"></a>
 
 Every "best local LLM engine" article benchmarks someone else's machine. InferBench benchmarks yours.
+
+Local-inference engines all publish their own benchmarks, on their own hardware, in their own README. None of them tell you which one is actually fastest on the machine sitting in front of you. InferBench runs a fixed, varied prompt set against whichever supported engines are installed on your own hardware and reports real, measured tokens/second -- not a number copied from someone else's blog post.
 
 Install, first run, and a real omlx benchmark against a cached model:
 
@@ -18,35 +21,21 @@ Install, first run, and a real omlx benchmark against a cached model:
 npx inferbench-cli run --engines llama.cpp --model "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"
 ```
 
----
+## Table of contents
 
-Local-inference engines all publish their own benchmarks, on their own hardware, in their own README. None of them tell you which one is actually fastest on the machine sitting in front of you. InferBench runs a fixed, varied prompt set against whichever supported engines are installed on your own hardware and reports real, measured tokens/second -- not a number copied from someone else's blog post.
-
-## What it does
-
-```bash
-$ inferbench run --engines llama.cpp --model "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"
-Hardware: Apple M4 (darwin/arm64), 16GB
-
-llama.cpp: starting server...
-llama.cpp: warming up...
-llama.cpp: [1/8] benchmarking...
-...
-llama.cpp: [8/8] benchmarking...
-
-Results:
-  llama.cpp: avg 75.54 tok/s (range 69.54-79.78, n=8)
-
-Recommendation: llama.cpp -- highest measured throughput on this run (75.54 tok/s avg) -- specific to this hardware and model, not a universal ranking
-```
-
-Every number above is real, produced by a live run against an actual `llama-server` process on real hardware -- not an illustrative placeholder.
-
-## Why this exists
-
-Local inference on consumer hardware is now the default path for a growing share of developers, and every engine's own comparison against its competitors has an obvious incentive problem: no vendor is a disinterested judge of its own numbers. InferBench has no engine of its own to sell, which is the entire point.
-
-The harder question this tool actually answers isn't "which engine is fastest in general" -- there is no such answer, because it depends on your exact hardware, your exact model, and your exact workload. It's "which engine is fastest **right now, on this machine, for this model**" -- a question only a tool that runs on your own hardware can answer honestly.
+- [Install](#install)
+- [Features](#features)
+- [Quickstart](#quickstart)
+- [CLI command reference](#cli-command-reference)
+- [Library API reference](#library-api-reference)
+- [How the measurement works](#how-the-measurement-works)
+- [Comparison](#comparison)
+- [Why this exists](#why-this-exists)
+- [Documentation](#documentation)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
 
 ## Install
 
@@ -65,7 +54,7 @@ npx inferbench-cli run --engines llama.cpp --model "<repo>:<quant>"
 pip install inferbench-cli
 ```
 
-**Current status**: both packages are published and installable today.
+Both packages are published and installable today.
 `npm install -g inferbench-cli` and `pip install inferbench-cli` both
 work -- see
 [npmjs.com/package/inferbench-cli](https://www.npmjs.com/package/inferbench-cli)
@@ -82,6 +71,16 @@ way (InferBench does not install engines for you):
 - **llama.cpp**: `brew install llama.cpp` (macOS) or build from [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
 - **omlx**: `brew tap jundot/omlx https://github.com/jundot/omlx && brew install omlx` (Apple Silicon only)
 
+## Features
+
+- **Cross-engine, same measurement code.** InferBench starts each engine's own OpenAI-compatible HTTP server (`llama-server`, `omlx serve`) and sends every engine the identical prompt set through the identical timing code, instead of comparing numbers each engine's own benchmark tool produced differently.
+- **Full-response-body timing, not headers.** An earlier version of this code measured elapsed time right after the HTTP response object resolved, which only captures headers arriving, and once reported a physically impossible 64,646 tok/s before the bug was caught. Both distributions now time the complete response body, with a regression test guarding the fix in each language's harness.
+- **8-prompt fixed sweep with warm-up.** One throwaway completion absorbs first-request latency, then 8 varied prompts are timed individually and reported as avg/min/max tok/s (`n=8` in the results table).
+- **Two independently maintained distributions, matching output.** npm's `inferbench-cli` (TypeScript) and PyPI's `inferbench-cli` (a genuine Python port, not a wrapper around the Node binary) expose the same CLI flags and the same JSON report field names.
+- **Machine-readable reports.** `--json` / `--out <file>` writes a full `BenchmarkReport` as camelCase JSON on both distributions, so CI or an agent can parse it without special-casing which language produced it.
+- **Local cloud-cost context (Python library).** `compare_to_cloud()` looks up a static, dated cloud API price alongside your measured local throughput -- it discloses plainly that it's a snapshot, not a live quote, and returns `None` for a model it doesn't recognize rather than guessing a number.
+- **Path-safe `--out`.** A relative `--out` value that resolves outside the current working directory is rejected, so an agent-supplied output path can't escape the intended directory.
+
 ## Quickstart
 
 ```bash
@@ -97,6 +96,24 @@ inferbench run --engines omlx --model "qwen2.5-1.5b-instruct-4bit"
 
 # Both installed engines, machine-readable output, saved to a file
 inferbench run --model "<spec>" --json --out report.json
+```
+
+Real output from a live run against an actual `llama-server` process:
+
+```
+$ inferbench run --engines llama.cpp --model "bartowski/Qwen2.5-1.5B-Instruct-GGUF:Q4_K_M"
+Hardware: Apple M4 (darwin/arm64), 16GB
+
+llama.cpp: starting server...
+llama.cpp: warming up...
+llama.cpp: [1/8] benchmarking...
+...
+llama.cpp: [8/8] benchmarking...
+
+Results:
+  llama.cpp: avg 75.54 tok/s (range 69.54-79.78, n=8)
+
+Recommendation: llama.cpp -- highest measured throughput on this run (75.54 tok/s avg) -- specific to this hardware and model, not a universal ranking
 ```
 
 > [!WARNING]
@@ -117,7 +134,45 @@ Options:
   --verbose         Show raw engine server stdout/stderr
 ```
 
-Exit code `0` on a successful run with at least one engine tested; `1` on a usage error or when no supported engine is installed.
+Exit code `0` on a successful run with at least one engine tested; `1` on a usage error or when no supported engine is installed. The Python CLI has one small, documented divergence: a missing required `--model` flag exits `2` (the standard `argparse` convention for a parse-time error) instead of `1`.
+
+## Library API reference
+
+The Python package (`pip install inferbench-cli`) exposes a documented library surface, meant for use in scripts or notebooks instead of the CLI. The npm package's `package.json` `main` field points at the CLI script itself (`dist/cli.js`, which runs the argument parser as a side effect on import) and does not declare a separate library entry point, so today only the Python distribution is a supported library import.
+
+```python
+from inferbench import (
+    benchmark_engine, detect_hardware, all_engines, resolve_engines,
+    recommend, compare_to_cloud, report_to_dict, write_json_report,
+)
+```
+
+| Symbol | Signature | What it returns |
+|---|---|---|
+| `detect_hardware()` | `() -> HardwareProfile` | Platform, architecture, CPU model string, total memory in GB, and whether the machine is Apple Silicon. |
+| `all_engines()` | `() -> List[EngineAdapter]` | An adapter instance for every supported engine (`omlx`, `llama.cpp`). |
+| `resolve_engines(names)` | `(names: List[str]) -> List[EngineAdapter]` | Adapters for a deduped, user-supplied engine list; raises on an unrecognized name. |
+| `benchmark_engine(adapter, *, model, ...)` | `(adapter, *, model: str, max_tokens=None, prompts=None, verbose=False, on_progress=None) -> EngineBenchmarkResult` | Runs the fixed prompt sweep against one engine and returns a structured result. Never raises for "engine not installed" or one failed prompt -- that state lives in the returned object. |
+| `recommend(results)` | `(results: List[EngineBenchmarkResult]) -> Optional[Recommendation]` | The engine with the highest measured average tok/s among installed, successfully tested engines. |
+| `compare_to_cloud(cloud_model)` | `(cloud_model: str) -> Optional[CostComparison]` | A static, dated per-1K-output-token price for a known cloud model (currently `claude-5-haiku`, `claude-5-sonnet`) plus a disclosure note, or `None` for a model it doesn't recognize. |
+| `report_to_dict(report)` / `write_json_report(report, path)` | `(report: BenchmarkReport) -> dict` / `(report, path: str) -> None` | Serialize a `BenchmarkReport` to the same camelCase JSON shape the CLI's `--json` / `--out` produce. |
+
+```python
+from inferbench import benchmark_engine, detect_hardware, all_engines, recommend, compare_to_cloud
+
+hardware = detect_hardware()
+results = [
+    benchmark_engine(adapter, model="qwen2.5-1.5b-instruct-4bit")
+    for adapter in all_engines()
+]
+best = recommend(results)
+print(f"{hardware.cpu_model}: {best.engine} -- {best.reason}")
+
+# What would the same output volume cost on a cloud API instead?
+cost = compare_to_cloud("claude-5-haiku")
+if cost:
+    print(f"{cost.cloud_model}: ${cost.cloud_cost_per_1k_tokens_usd}/1K tokens (snapshot {cost.pricing_snapshot_date})")
+```
 
 ## MCP Server
 
@@ -158,20 +213,28 @@ subprocess. Source: [`python/src/inferbench/mcp_server.py`](python/src/inferbenc
 
 InferBench does not shell out to each engine's own benchmark tool and parse its output. That approach was in the original plan and turned out not to work at all: `omlx` has no CLI benchmark command -- its "Performance Benchmark" feature is a GUI-only, one-click action in its admin dashboard, verified directly against its real README before writing a line of adapter code.
 
-Instead, InferBench starts each engine's own already-standardized OpenAI-compatible HTTP server (`omlx serve`, `llama-server`) and sends the exact same prompts through the exact same measurement code to every engine, timing the full response (not just time-to-first-byte -- an earlier version of this code measured elapsed time right after `fetch()` resolved, which only captures HTTP headers arriving, not generation finishing, and produced a physically impossible 64,646 tok/s during a real end-to-end test run before the bug was caught and fixed). This is the only approach that is genuinely apples-to-apples across engines with fundamentally different internals, and the only one that works at all for `omlx`.
+Instead, InferBench starts each engine's own already-standardized OpenAI-compatible HTTP server (`omlx serve`, `llama-server`) and sends the exact same prompts through the exact same measurement code to every engine, timing the full response (not just time-to-first-byte). This is the only approach that is genuinely apples-to-apples across engines with fundamentally different internals, and the only one that works at all for `omlx`.
 
-## What "recommended" means (and doesn't)
-
-The recommendation in every report is scoped explicitly: it names the engine with the highest measured average tokens/second **on this specific run, this specific hardware, this specific model** -- not a general claim about which engine is best. A different model, a different machine, or a different day's thermal conditions can change the answer; two runs during this tool's own development produced opposite rankings between `omlx` and `llama.cpp` on the same hardware and model, which is itself the reason this tool measures live rather than quoting a fixed number.
+**What "recommended" means (and doesn't):** the recommendation in every report names the engine with the highest measured average tokens/second **on this specific run, this specific hardware, this specific model** -- not a general claim about which engine is best. A different model, a different machine, or a different day's thermal conditions can change the answer; two runs during this tool's own development produced opposite rankings between `omlx` and `llama.cpp` on the same hardware and model, which is itself the reason this tool measures live rather than quoting a fixed number.
 
 ## Comparison
 
-| | InferBench | A static "definitive 2026 guide" comparison article |
-|---|---|---|
-| Measures | Your own hardware, live | The author's machine, once |
-| Reproducible by you | Yes -- rerun any time | No -- you cannot rerun someone else's blog post |
-| Stays current as engines update | Yes | No -- frozen at publish date |
-| Vendor-neutral | Yes -- no engine of its own | Varies by author |
+Three real, independently maintained tools sit in the same space, each with a different scope. Any cell not pulled from the linked project's own docs is marked accordingly.
+
+| | InferBench | [llama-bench](https://github.com/ggml-org/llama.cpp/blob/master/tools/llama-bench/README.md) (bundled with llama.cpp) | [local-llm-bench](https://github.com/famstack-dev/local-llm-bench) | [inference-benchmarker](https://github.com/huggingface/inference-benchmarker) (Hugging Face) |
+|---|---|---|---|---|
+| Engines covered | omlx, llama.cpp | llama.cpp only | Ollama, LM Studio, omlx, any OpenAI-compatible endpoint | Any OpenAI-compatible chat API (TGI, vLLM, etc.) |
+| What it measures | Single-request avg/min/max tok/s across a fixed 8-prompt sweep | Prompt-processing and token-generation tok/s with tunable batch size, cache type, thread count | "Effective" tok/s (output tokens / total wall-clock including prefill) across custom real-world scenarios | Concurrency/throughput sweep at increasing request rates (QPS), production-serving focused |
+| Cross-engine in one run | Yes | No -- one engine only | Yes, engine chosen per invocation | Yes, any server with the API, per invocation |
+| Output formats | Human table, JSON | Markdown, CSV, JSON, JSONL, SQL | JSON to disk + a separate `compare.py` script | JSON |
+| Distribution | npm + PyPI, `pip install` / `npm install -g` | Ships inside the llama.cpp build, no separate package | `git clone` + `python3 bench.py` (no PyPI/npm package) | `cargo install`, prebuilt binary, or Docker image |
+| Platform | Cross-platform for llama.cpp; omlx is Apple Silicon-only | Cross-platform (same as llama.cpp) | Documented and demonstrated for Apple Silicon (MLX/GGUF engines) | Cross-platform, built for GPU server deployments |
+
+## Why this exists
+
+Local inference on consumer hardware is now the default path for a growing share of developers, and every engine's own comparison against its competitors has an obvious incentive problem: no vendor is a disinterested judge of its own numbers. InferBench has no engine of its own to sell, which is the entire point.
+
+The harder question this tool actually answers isn't "which engine is fastest in general" -- there is no such answer, because it depends on your exact hardware, your exact model, and your exact workload. It's "which engine is fastest **right now, on this machine, for this model**" -- a question only a tool that runs on your own hardware can answer honestly.
 
 ## Documentation
 
@@ -195,7 +258,7 @@ Benchmarking multiple engines side by side, with a real measured recommendation 
 A benchmarking tool for local-LLM-inference engines already installed on your machine -- currently `omlx` and `llama.cpp`. It runs a fixed, varied prompt set against whichever of those are present, measures real tokens/second for each, and recommends whichever one was fastest on that specific run. It ships as two packages under the same name, `inferbench-cli`: one on npm (JavaScript/TypeScript) and one on PyPI (Python).
 
 **How is InferBench different from llama.cpp's own `llama-bench`?**
-`llama-bench` (bundled with llama.cpp) only benchmarks llama.cpp itself, with fine-grained tuning knobs (batch size, cache type, thread count, and more). InferBench benchmarks *across* engines -- currently `omlx` and `llama.cpp` -- using the same prompt set and the same measurement code for both, so the resulting tokens/second numbers are directly comparable to each other on your hardware, not just tunable in isolation for one engine.
+`llama-bench` (bundled with llama.cpp) only benchmarks llama.cpp itself, with fine-grained tuning knobs (batch size, cache type, thread count, repetitions, and more) and outputs to Markdown, CSV, JSON, JSONL, or SQL. InferBench benchmarks *across* engines -- currently `omlx` and `llama.cpp` -- using the same prompt set and the same measurement code for both, so the resulting tokens/second numbers are directly comparable to each other on your hardware, not just tunable in isolation for one engine.
 
 **Does InferBench work on Linux and Windows, or only macOS?**
 The `llama.cpp` engine works on any platform llama.cpp itself supports (Linux, macOS, Windows), since InferBench just starts `llama-server` and measures its OpenAI-compatible endpoint. The `omlx` engine is Apple Silicon-only, matching omlx's own scope -- on Linux or Windows, `--engines omlx` reports that engine as not installed and InferBench benchmarks whatever supported engine actually is present. Node.js >=18 is required for the npm package, Python >=3.9 for the PyPI package.

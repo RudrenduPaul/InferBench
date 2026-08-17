@@ -13,7 +13,7 @@ authors = [
   { name = "Rudrendu Paul" },
   { name = "Sourav Nandy" },
 ]
-keywords = ["llm", "inference", "benchmark", "omlx", "llama.cpp", "mlx", "local-llm", "apple-silicon", "cli"]
+keywords = ["llm", "inference", "benchmark", "omlx", "llama.cpp", "mlx", "local-llm", "apple-silicon", "cli", "gguf", "tokens-per-second", "hardware-benchmark"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
