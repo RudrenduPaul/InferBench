@@ -50,9 +50,16 @@ export async function spawnServerAndWaitReady(
         `${opts.engine}: process exited early (code ${child.exitCode}) before becoming ready`,
       );
     }
+    // Cap each connection attempt at whatever time is actually left before
+    // the deadline (never more than 2s). Without this, a single slow or
+    // non-responsive connect (e.g. a dropped SYN instead of an immediate
+    // refusal) can block for the full fixed timeout and blow past the
+    // caller's overall timeoutMs budget by several times over.
+    const remainingMs = deadline - Date.now();
+    const attemptTimeoutMs = Math.max(50, Math.min(2000, remainingMs));
     try {
       const res = await fetch(opts.readyCheckUrl, {
-        signal: AbortSignal.timeout(2000),
+        signal: AbortSignal.timeout(attemptTimeoutMs),
       });
       if (res.ok) {
         return { process: child, stop };

@@ -54,8 +54,16 @@ def spawn_server_and_wait_ready(
             raise RuntimeError(
                 f"{engine}: process exited early (code {process.returncode}) before becoming ready"
             )
+        # Cap each connection attempt at whatever time is actually left before
+        # the deadline (never more than 2s). Without this, a single slow or
+        # non-responsive connect (e.g. a dropped SYN instead of an immediate
+        # refusal, which happens for closed ports on some OS/firewall
+        # combinations) can block for the full fixed timeout and blow past
+        # the caller's overall timeout_ms budget by several times over.
+        remaining = deadline - time.monotonic()
+        attempt_timeout = max(0.05, min(2.0, remaining))
         try:
-            with urllib.request.urlopen(ready_check_url, timeout=2) as response:  # noqa: S310
+            with urllib.request.urlopen(ready_check_url, timeout=attempt_timeout) as response:  # noqa: S310
                 if 200 <= response.status < 300:
                     return SpawnedServer(process=process, stop=stop)
         except Exception as err:  # noqa: BLE001 -- polling loop; any failure just means "not ready yet"
