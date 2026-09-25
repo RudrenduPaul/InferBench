@@ -64,7 +64,7 @@ or [`python/README.md`](./python/README.md) and
 walkthrough, and [CHANGELOG.md](./CHANGELOG.md) for each distribution's
 version history.
 
-Requires Node.js >=18 for the npm package, Python >=3.9 for the PyPI
+Requires Node.js >=18 for the npm package, Python >=3.10 for the PyPI
 package. At least one supported engine must already be installed either
 way (InferBench does not install engines for you):
 
@@ -261,7 +261,7 @@ A benchmarking tool for local-LLM-inference engines already installed on your ma
 `llama-bench` (bundled with llama.cpp) only benchmarks llama.cpp itself, with fine-grained tuning knobs (batch size, cache type, thread count, repetitions, and more) and outputs to Markdown, CSV, JSON, JSONL, or SQL. InferBench benchmarks *across* engines -- currently `omlx` and `llama.cpp` -- using the same prompt set and the same measurement code for both, so the resulting tokens/second numbers are directly comparable to each other on your hardware, not just tunable in isolation for one engine.
 
 **Does InferBench work on Linux and Windows, or only macOS?**
-The `llama.cpp` engine works on any platform llama.cpp itself supports (Linux, macOS, Windows), since InferBench just starts `llama-server` and measures its OpenAI-compatible endpoint. The `omlx` engine is Apple Silicon-only, matching omlx's own scope -- on Linux or Windows, `--engines omlx` reports that engine as not installed and InferBench benchmarks whatever supported engine actually is present. Node.js >=18 is required for the npm package, Python >=3.9 for the PyPI package.
+The `llama.cpp` engine works on any platform llama.cpp itself supports (Linux, macOS, Windows), since InferBench just starts `llama-server` and measures its OpenAI-compatible endpoint. The `omlx` engine is Apple Silicon-only, matching omlx's own scope -- on Linux or Windows, `--engines omlx` reports that engine as not installed and InferBench benchmarks whatever supported engine actually is present. Node.js >=18 is required for the npm package, Python >=3.10 for the PyPI package.
 
 **Does InferBench download models for me?**
 For llama.cpp, yes -- pass a Hugging Face repo spec and `llama-server`'s own `-hf` flag downloads and caches it. For omlx, no -- omlx's `serve` command only discovers models already present in a local directory, so you need to have the model downloaded there first.

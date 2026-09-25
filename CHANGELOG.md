@@ -6,6 +6,16 @@ JS/TS) and the PyPI package (`inferbench-cli`, Python) -- since they run
 the same measurement architecture against the same two supported engines;
 entries note which distribution they apply to.
 
+## [Python 0.1.8 follow-up] - Unreleased
+
+### Changed
+
+- **Python floor raised to 3.10** (was 3.9). The `dev` extra pins
+  `pytest>=9.1.1`, which requires Python 3.10 or newer, so the test extra
+  could not install on Python 3.9. `requires-python` is now `>=3.10`, the
+  Python 3.9 classifier is removed, and the README states Python >=3.10.
+  No version bump in this change.
+
 ## [npm 0.1.5] - Unreleased
 
 ### Changed
