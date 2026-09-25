@@ -6,6 +6,16 @@ JS/TS) and the PyPI package (`inferbench-cli`, Python) -- since they run
 the same measurement architecture against the same two supported engines;
 entries note which distribution they apply to.
 
+## [npm 0.1.5] - Unreleased
+
+### Changed
+
+- **`commander` pinned to `^13.1.0`** (was `^15.0.0`). `commander` 15
+  requires Node 22.12 or newer, while `engines.node` declares `>=18`, so
+  installs and runs on Node 18 to 22.11 were unsupported in practice.
+  `commander` 13 declares `node >=18`, which matches `engines.node`. The
+  CLI uses only the common `Command` API, so no source changes were needed.
+
 ## [Python 0.1.5] - 2026-08-08
 
 Bug fix. Both `inferbench/__init__.py`'s `__version__` and
